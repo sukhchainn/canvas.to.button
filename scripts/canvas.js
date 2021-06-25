@@ -1,6 +1,7 @@
 const canvas = document.getElementById('canvas');
-const btn = document.getElementById('button');
 const ctx = canvas.getContext('2d');
+const btn = document.getElementById('button');
+var image = document.getElementById('placeholderImg');
 var imageLoader = document.getElementById('imageLoader');
     imageLoader.addEventListener('change', handleImage, false);
 
@@ -32,16 +33,35 @@ ctx.drawImage("pully.png", 0, 0);
 // 		x+=size;
 // 	}
 // }
+function imgToCanvas() {
+	// image.style.backgroundImage;
 
+            ctx.drawImage(image,0,0);
+}
 function canvasToImg() {
       var url = canvas.toDataURL();
+      var imageData = ctx.getImageData(0, 0, 600, 300);
+      console.log(imageData);
+      imageData.data[12] = 255;
+      imageData.data[13] = 255;
+      imageData.data[14] = 255;
+      imageData.data[16] = 255;
+      imageData.data[17] = 255;
+      imageData.data[18] = 255;
+      imageData.data[20] = 255;
+      imageData.data[21] = 255;
+      imageData.data[22] = 255;
+      imageData.data[24] = 255;
+      imageData.data[25] = 255;
+      imageData.data[26] = 255;
 
-      var newImg = document.createElement("img"); // create img tag
+      // var newImg = document.createElement("img"); // create img tag
       btn.style.backgroundImage = "url('"+url+"')";
       // newImg.src = url;
       // document.body.appendChild(newImg); // add to end of your document
     }
 function draw() {
+	imgToCanvas();
 	canvasToImg();
 }
 
