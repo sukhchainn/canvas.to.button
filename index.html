@@ -1,16 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<meta charset="utf-8">
 	<title>Canvas to Button</title>
+	<link rel="stylesheet" href="main.css">
 </head>
-<body>
-	<canvas id="canvas" width="600" height="300" style="border: 2px solid"></canvas>
-	<button id="button" onclick="draw()" style="width: 200px; height: 50px;">Play</button>
-	<div id="image_for_crop">
-		<input type="file" id="imageLoader" name="imageLoader"/>
-	</div>
-	<img id="placeholderImg" src="assets/pully.png">
+<body onload="draw(5)">
+	<button id="button" class="_button" style="
+    background-image: url('assets/pullybg.png');">Play</button>
 
 	<script type="text/javascript" src="scripts/canvas.js"></script>
 	<script type="text/javascript" src="scripts/RGBA.js"></script>
