@@ -12,6 +12,7 @@ var imageData;
 
 var x=0, y=0, rows=0, columns=0, size=5; 
 var rgbArray = new Array(); 
+var blitRGB;
 
 // btn.style.border = 'none';
 ctx.strokeStyle = 'black';
@@ -21,7 +22,9 @@ ctx.lineWidth = 5;
 function imgToCanvas() {
   let style = btn.currentStyle || window.getComputedStyle(btn, false);
   image.src = style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
-
+  blitRGB = style.backgroundColor.replace(/rgb\((['"])?(.*?)\1\)/gi, '$2').split(',');
+  btn.style.background = 'transparent';
+  
   ctx.drawImage(image,0,0);
 }
 
@@ -36,9 +39,9 @@ function canvasToRgb() {
       let b = imageData.data[counter++];
       let a = imageData.data[counter++];
 
-      if (r == 255 &&
-          g == 255 &&
-          b == 255 &&
+      if (r == blitRGB[0] &&
+          g == blitRGB[1] &&
+          b == blitRGB[2] &&
           a == 255) {
         rgbArray[i].push(new RGBA(r, g, b, 0));
       } else {
@@ -155,7 +158,6 @@ function draw(s) {
 
   // put the background image into the canvas
 	imgToCanvas();
-  btn.style.background = 'transparent';
   // convert the individual r, g, b, a values to RGB objects
   canvasToRgb();
   // stretch the image to the element's size
