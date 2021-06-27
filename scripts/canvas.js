@@ -6,24 +6,30 @@ canvas.style.position = "absolute";
 canvas.style.border = "1px solid";
 
 const ctx = canvas.getContext('2d');
-const btn = document.getElementById('_button');
+const elements = document.getElementsByTagName('*');
 var image = document.createElement('img');
 var imageData;
 
-var x=0, y=0, rows=0, columns=0, size=5; 
+var rows=0, columns=0, size=5; 
 var rgbArray = new Array(); 
 var blitRGB;
 
-// btn.style.border = 'none';
+// element.style.border = 'none';
 ctx.strokeStyle = 'black';
 ctx.lineWidth = 5;
 
 
-function imgToCanvas() {
-  let style = btn.currentStyle || window.getComputedStyle(btn, false);
-  image.src = style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
+function imgToCanvas(element) {
+  let style = element.currentStyle || window.getComputedStyle(element, false);
+
+  if (element.style.backgroundImage != '') {
+    image.src = element.style.backgroundImage;
+  } else {
+    image.src = style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
+  }
+  
   blitRGB = style.backgroundColor.replace(/rgb\((['"])?(.*?)\1\)/gi, '$2').split(',');
-  btn.style.background = 'transparent';
+  element.style.background = 'transparent';
   
   ctx.drawImage(image,0,0);
 }
@@ -93,12 +99,12 @@ function stretchToWidth() {
   }
 }
 
-function matchRgbToBoundary() {
-  x=0; y=0;
-  // count rows and colums of btn.
+function matchRgbToBoundary(element) {
+  let x=0; y=0;
+  // count rows and colums of element.
   columns--;
-  while (y < btn.offsetHeight) {
-    if (x > btn.offsetWidth) {
+  while (y < element.offsetHeight) {
+    if (x > element.offsetWidth) {
       x=0;
       y+=size;
       rows++;
@@ -117,7 +123,7 @@ function matchRgbToBoundary() {
 }
 
 function rgbToCanvasScaled() {
-  x=0; y=0;
+  let x=0; y=0;
   for (let i=0; i<rows; i++) {
     for (let j=0; j<columns; j++) {
         ctx.fillStyle = rgbArray[i][j].getRGBA();
@@ -142,12 +148,12 @@ function clearCanvas() {
   ctx.restore();
 }
 
-function canvasToImg() {
+function canvasToImg(element) {
   // imageData = ctx.getImageData(0, 0, image.width, image.height);
   var url = canvas.toDataURL();
 
   // var newImg = document.createElement("img"); // create img tag
-  btn.style.backgroundImage = "url('"+url+"')";
+  element.style.backgroundImage = "url('"+url+"')";
   // newImg.src = url;
   // document.body.appendChild(newImg); // add to end of your document
 }
@@ -156,16 +162,23 @@ function canvasToImg() {
 function draw(s) {
   size = s;
 
-  // put the background image into the canvas
-	imgToCanvas();
-  // convert the individual r, g, b, a values to RGB objects
-  canvasToRgb();
-  // stretch the image to the element's size
-  matchRgbToBoundary();
-  // clear the previous small image at the top left corner
-  clearCanvas();
-  // scale the individual pixels to the size and put them to canvas
-  rgbToCanvasScaled();
-  // put the scaled image to the element's background
-	canvasToImg();
+  for(element of elements) {
+    if (element.dataset.pixelate == "") {
+      // put the background image into the canvas
+    	imgToCanvas(element);
+      // convert the individual r, g, b, a values to RGB objects
+      canvasToRgb();
+      // stretch the image to the element's size
+      matchRgbToBoundary(element);
+      // clear the previous small image at the top left corner
+      clearCanvas();
+      // scale the individual pixels to the size and put them to canvas
+      rgbToCanvasScaled();
+      // put the scaled image to the element's background
+    	canvasToImg(element);
+    }
+    rows=0; columns=0;
+    rgbArray.splice(0, rgbArray.length);
+    // blitRGB.splice(0, blitRGB.length);
+  }
 }
