@@ -1,3 +1,9 @@
+// This script accepts background image of an element with attribute data-pixelate
+// scales it to appropriate size and puts it back to the background of the element
+// the background image should be in url("name.extension") format
+// the background color will be used to blit the image with transparency.
+// in some browsers there are some visible white patches, I have to figure out 'why?'.
+
 var canvas = document.createElement('canvas');
 canvas.id = "CursorLayer";
 canvas.width = window.innerWidth;
@@ -23,13 +29,16 @@ function imgToCanvas(element) {
   let style = element.currentStyle || window.getComputedStyle(element, false);
 
   if (element.style.backgroundImage != '') {
-    image.src = element.style.backgroundImage;
+    console.log(element.style.backgroundImage);
+    image.src = element.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
   } else {
     image.src = style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
   }
   
   blitRGB = style.backgroundColor.replace(/rgb\((['"])?(.*?)\1\)/gi, '$2').split(',');
   element.style.background = 'transparent';
+  element.style.backgroundRepeat = "no-repeat";
+  element.style.border = "none";
   
   ctx.drawImage(image,0,0);
 }
@@ -163,7 +172,9 @@ function draw(s) {
   size = s;
 
   for(element of elements) {
+    console.log("Size :", size);
     if (element.dataset.pixelate == "") {
+      console.log(element);
       // put the background image into the canvas
     	imgToCanvas(element);
       // convert the individual r, g, b, a values to RGB objects
@@ -180,5 +191,6 @@ function draw(s) {
     rows=0; columns=0;
     rgbArray.splice(0, rgbArray.length);
     // blitRGB.splice(0, blitRGB.length);
+    imageData=null;
   }
 }
