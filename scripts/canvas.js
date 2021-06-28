@@ -27,14 +27,26 @@ ctx.lineWidth = 5;
 function imgToCanvas(element) {
   let style = element.currentStyle || window.getComputedStyle(element, false);
 
-  if (element.style.backgroundImage != '') {
-    console.log(element.style.backgroundImage);
-    image.src = element.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
-  } else {
-    image.src = style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
+  if (element.offsetHeight==0) {
+    element.offsetHeight = element.height;
   }
-  
-  blitRGB = style.backgroundColor.replace(/rgb\((['"])?(.*?)\1\)/gi, '$2').split(',');
+  if (element.offsetWidth==0) {
+    element.offsetWidth = element.width;
+  }
+  canvas.width = element.offsetWidth;
+  canvas.height = element.offsetHeight;
+
+  if (element.dataset.pixelate == "bg") {
+    if (element.style.backgroundImage != '') {
+      image.src = element.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
+    } else {
+      image.src = style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
+    }
+  } else if (element.dataset.pixelate == "src") {
+    image.src = element.src.substr(element.src.indexOf("assets"), element.src.length);
+  }
+
+  blitRGB = style.backgroundColor.replace(/rgb\((['"])?(.*?)\1\)/gi, '$2').split(',');  
   element.style.background = 'transparent';
   element.style.backgroundRepeat = "no-repeat";
   element.style.border = "none";
@@ -70,7 +82,8 @@ function stretchToHeight() {
   if (rows > rgbArray.length) {
     // if rows are more than rgbArray.length then add the number of deficient rows to rgbArray
     let deficiency = rows - rgbArray.length;
-    let from = rgbArray.length/2;
+    let from = parseInt(rgbArray.length/2);
+    console.log("From" + from);
     
     for (let i=0; i<deficiency; i++) {
       rgbArray.splice(from, 0, [...rgbArray[from]]);
@@ -78,7 +91,7 @@ function stretchToHeight() {
   } else {
     // if rows are less than rgbArray.length then subtract the number of excess rows from rgbArray
     let excess = rgbArray.length - rows;
-    let from = rgbArray.length/2 - excess;
+    let from = parseInt(rgbArray.length/2) - excess;
 
     rgbArray.splice(from, excess);
   }
@@ -88,7 +101,7 @@ function stretchToWidth() {
   if (columns > rgbArray[0].length) {
     // if rows are more than rgbArray.length then add the number of deficient rows to rgbArray
     let deficiency = columns - rgbArray[0].length;
-    let from = rgbArray[0].length/2;
+    let from = parseInt(rgbArray[0].length/2);
     
     for (let i=0; i<rgbArray.length; i++) {
       for (let j=0; j<deficiency; j++) {
@@ -99,7 +112,7 @@ function stretchToWidth() {
   } else {
     // if rows are less than rgbArray.length then subtract the number of excess rows from rgbArray
     let excess = rgbArray[0].length - columns;
-    let from = rgbArray[0].length/2 - excess;
+    let from = parseInt(rgbArray[0].length/2) - excess;
 
     for (let i=0; i<rgbArray.length; i++) {
       rgbArray[i].splice(from, excess);
@@ -109,6 +122,7 @@ function stretchToWidth() {
 
 function matchRgbToBoundary(element) {
   let x=0; y=0;
+
   // count rows and colums of element.
   columns--;
   while (y < element.offsetHeight) {
@@ -124,7 +138,7 @@ function matchRgbToBoundary(element) {
     }
   }
 
-  console.log(rows, columns, rgbArray[0].length, rgbArray.length);
+  console.log(rows, columns, rgbArray.length, rgbArray[0].length);
 
   stretchToHeight();
   stretchToWidth();
@@ -134,7 +148,6 @@ function rgbToCanvasScaled() {
   let x=0; y=0;
   for (let i=0; i<rows; i++) {
     for (let j=0; j<columns; j++) {
-      console.log(i, j, rgbArray[i][j].getRGBA());
         ctx.fillStyle = rgbArray[i][j].getRGBA();
         ctx.fillRect(x, y, size, size); // (x, y, width, height);
         
@@ -162,7 +175,14 @@ function canvasToImg(element) {
   var url = canvas.toDataURL();
 
   // var newImg = document.createElement("img"); // create img tag
-  element.style.backgroundImage = "url('"+url+"')";
+  if (element.dataset.pixelate == "bg") {
+    element.style.backgroundImage = "url('"+url+"')";
+    console.log("bg :"+url);
+  }
+  else {
+    element.src = url;
+    console.log("SRC"+element.src +"\n"+size);
+  }
   // newImg.src = url;
   // document.body.appendChild(newImg); // add to end of your document
 }
@@ -172,8 +192,7 @@ function draw(s) {
   size = s;
 
   for(element of elements) {
-    console.log("Size :", size);
-    if (element.dataset.pixelate == "") {
+    if (element.dataset.pixelate != undefined) {
       console.log(element);
       // put the background image into the canvas
     	imgToCanvas(element);
