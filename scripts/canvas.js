@@ -2,7 +2,6 @@
 // scales it to appropriate size and puts it back to the background of the element
 // the background image should be in url("name.extension") format
 // the background color will be used to blit the image with transparency.
-// in some browsers there are some visible white patches, I have to figure out 'why?'.
 
 var canvas = document.createElement('canvas');
 canvas.id = "CursorLayer";
@@ -54,9 +53,10 @@ function canvasToRgb() {
       let b = imageData.data[counter++];
       let a = imageData.data[counter++];
 
-      if (r == blitRGB[0] &&
-          g == blitRGB[1] &&
-          b == blitRGB[2] &&
+      // colorData got from canvas isn't always accurate so we approximate
+      if (r >= blitRGB[0]-1 && r <= blitRGB[0]+1 &&
+          g >= blitRGB[1]-1 && g <= blitRGB[1]+1 &&
+          b >= blitRGB[2]-1 && b <= blitRGB[2]+1 &&
           a == 255) {
         rgbArray[i].push(new RGBA(r, g, b, 0));
       } else {
@@ -89,7 +89,6 @@ function stretchToWidth() {
     // if rows are more than rgbArray.length then add the number of deficient rows to rgbArray
     let deficiency = columns - rgbArray[0].length;
     let from = rgbArray[0].length/2;
-    console.log(deficiency);
     
     for (let i=0; i<rgbArray.length; i++) {
       for (let j=0; j<deficiency; j++) {
@@ -135,6 +134,7 @@ function rgbToCanvasScaled() {
   let x=0; y=0;
   for (let i=0; i<rows; i++) {
     for (let j=0; j<columns; j++) {
+      console.log(i, j, rgbArray[i][j].getRGBA());
         ctx.fillStyle = rgbArray[i][j].getRGBA();
         ctx.fillRect(x, y, size, size); // (x, y, width, height);
         

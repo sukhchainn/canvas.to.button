@@ -1,6 +1,6 @@
 
-#_button {
-    width: calc(40px*5); 
+._button {
+    width: calc(50px*5); 
     height: calc(10px*5); 
     background-image: url("assets/pullybg.png");  
     background-color: white; 
